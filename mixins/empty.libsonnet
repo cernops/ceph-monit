@@ -1,0 +1,5 @@
+{
+  grafanaDashboards+:: {},
+  prometheusRules+:: {},
+  prometheusAlerts+:: {},
+}
