@@ -1,0 +1,46 @@
+image: golang:1.17-bullseye
+variables:
+  JSONNET_VERSION: "v0.17.0"
+  GRIZZLY_VERSION: "v0.2.0-beta3"
+before_script:
+  - go install github.com/google/go-jsonnet/cmd/jsonnet@${JSONNET_VERSION}
+  - go install github.com/google/go-jsonnet/cmd/jsonnetfmt@${JSONNET_VERSION}
+  - curl -fSL -o "/usr/local/bin/grr" "https://github.com/grafana/grizzly/releases/download/${GRIZZLY_VERSION}/grr-linux-amd64"
+  - chmod +x "/usr/local/bin/grr"
+
+install-deps:
+  stage: .pre
+  image: golang:1.17
+  variables:
+    JB_VERSION: "v0.4.0"
+  before_script:
+   - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
+  script:
+    - jb install
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 month
+
+lint:
+  stage: test
+  script:
+    - jsonnetfmt --test $(find . -name '*.jsonnet' -o -name '*.libsonnet')
+
+diff:
+  stage: test
+  script:
+    - grr diff grr.jsonnet > dashboards-diff.txt
+  artifacts:
+    expose_as: 'Dashboards diff'
+    paths:
+      - dashboards-diff.txt
+
+deploy-dashboards:
+  stage: deploy
+  script:
+    - grr deploy grr.jsonnet
+  only:
+    refs:
+      - main
+      - tags
