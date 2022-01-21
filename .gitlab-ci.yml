@@ -1,8 +1,10 @@
-image: golang:1.17-bullseye
+image: gitlab-registry.cern.ch/linuxsupport/cs9-base
 variables:
-  JSONNET_VERSION: "v0.17.0"
+  JSONNET_VERSION: "v0.18.0"
   GRIZZLY_VERSION: "v0.2.0-beta3"
 before_script:
+  - yum install -y go curl
+  - export PATH="$HOME/go/bin:$PATH"
   - go install github.com/google/go-jsonnet/cmd/jsonnet@${JSONNET_VERSION}
   - go install github.com/google/go-jsonnet/cmd/jsonnetfmt@${JSONNET_VERSION}
   - curl -fSL -o "/usr/local/bin/grr" "https://github.com/grafana/grizzly/releases/download/${GRIZZLY_VERSION}/grr-linux-amd64"
@@ -19,12 +21,11 @@ before_script:
 
 install-deps:
   stage: .pre
-  image: golang:1.17
   variables:
     JB_VERSION: "v0.4.0"
   before_script:
-   - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
   script:
+    - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
     - jb install
   artifacts:
     paths:
