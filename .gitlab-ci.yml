@@ -8,6 +8,15 @@ before_script:
   - curl -fSL -o "/usr/local/bin/grr" "https://github.com/grafana/grizzly/releases/download/${GRIZZLY_VERSION}/grr-linux-amd64"
   - chmod +x "/usr/local/bin/grr"
 
+.qa_grafana:
+  variables:
+    GRAFANA_URL: $GRAFANA_QA_URL
+    GRAFANA_TOKEN: $GRAFANA_QA_TOKEN
+.prod_grafana:
+  variables:
+    GRAFANA_URL: $GRAFANA_PROD_URL
+    GRAFANA_TOKEN: $GRAFANA_PROD_TOKEN
+
 install-deps:
   stage: .pre
   image: golang:1.17
@@ -28,7 +37,9 @@ lint:
     - jsonnetfmt --test $(find . -name '*.jsonnet' -o -name '*.libsonnet')
 
 diff:
+  extends: .prod_grafana
   stage: test
+  allow_failure: true
   script:
     - grr diff grr.jsonnet > dashboards-diff.txt
   artifacts:
@@ -36,10 +47,19 @@ diff:
     paths:
       - dashboards-diff.txt
 
-deploy-dashboards:
+deploy-dashboards-qa:
+  extends: .qa_grafana
   stage: deploy
   script:
-    - grr deploy grr.jsonnet
+    - echo "${GRAFANA_URL}"
+    - grr apply grr.jsonnet -t 'Dashboard*'
+
+deploy-dashboards:
+  extends: .prod_grafana
+  allow_failure: true
+  stage: deploy
+  script:
+    - grr apply grr.jsonnet -t 'Dashboard*'
   only:
     refs:
       - main
