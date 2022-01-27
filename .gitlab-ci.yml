@@ -41,9 +41,8 @@ lint:
 diff:
   extends: .prod_grafana
   stage: test
-  allow_failure: true
   script:
-    - grr diff grr.jsonnet > dashboards-diff.txt
+    - grr diff grr.jsonnet -t 'Dashboard*' > dashboards-diff.txt
   artifacts:
     expose_as: 'Dashboards diff'
     paths:
