@@ -14,11 +14,9 @@ before_script:
 .qa_grafana:
   variables:
     GRAFANA_URL: $GRAFANA_QA_URL
-    GRAFANA_TOKEN: $GRAFANA_QA_TOKEN
 .prod_grafana:
   variables:
     GRAFANA_URL: $GRAFANA_PROD_URL
-    GRAFANA_TOKEN: $GRAFANA_PROD_TOKEN
 
 install-deps:
   stage: .pre
