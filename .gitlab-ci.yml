@@ -39,11 +39,7 @@ diff:
   extends: .prod_grafana
   stage: test
   script:
-    - grr diff grr.jsonnet -t 'Dashboard*' > dashboards-diff.txt
-  artifacts:
-    expose_as: 'Dashboards diff'
-    paths:
-      - dashboards-diff.txt
+    - grr diff grr.jsonnet -t 'Dashboard*'
 
 deploy-dashboards-qa:
   extends: .qa_grafana
