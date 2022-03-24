@@ -1,3 +1,4 @@
 vendor
-grafana
-prometheus
+dashboards_out
+.terraform
+.terraform.lock.hcl

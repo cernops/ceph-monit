@@ -1,27 +1,59 @@
-image: gitlab-registry.cern.ch/linuxsupport/cs9-base
-variables:
-  JSONNET_VERSION: "v0.18.0"
-  GRIZZLY_VERSION: "v0.2.0-beta3"
-before_script:
-  - yum install -y go curl
-  - export PATH="$HOME/go/bin:$PATH"
-  - go install github.com/google/go-jsonnet/cmd/jsonnet@${JSONNET_VERSION}
-  - go install github.com/google/go-jsonnet/cmd/jsonnetfmt@${JSONNET_VERSION}
-  - curl -fSL -o "/usr/local/bin/grr" "https://github.com/grafana/grizzly/releases/download/${GRIZZLY_VERSION}/grr-linux-amd64"
-  - chmod +x "/usr/local/bin/grr"
+# TODO: remove latest
+default:
+  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+
+.jsonnet_image:
+  image: gitlab-registry.cern.ch/linuxsupport/cs9-base
+  variables:
+    JSONNET_VERSION: "v0.18.0"
+  before_script:
+    - yum install -y go curl
+    - export PATH="$HOME/go/bin:$PATH"
+    - go install github.com/google/go-jsonnet/cmd/jsonnet@${JSONNET_VERSION}
+    - go install github.com/google/go-jsonnet/cmd/jsonnetfmt@${JSONNET_VERSION}
 
 .qa_grafana:
   variables:
     GRAFANA_URL: $GRAFANA_QA_URL
+    GRAFANA_INSECURE_SKIP_VERIFY: "true"
+    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/qa
+  cache:
+    - key: prod
+      paths:
+        - .terraform
 .prod_grafana:
   variables:
     GRAFANA_URL: $GRAFANA_PROD_URL
+    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/prod
+  cache:
+    - key: qa
+      paths:
+        - .terraform
+
+.qa_tf_root:
+  variables:
+    TF_ROOT: terraform/environments/qa
+  before_script:
+    - cd ${TF_ROOT}
+.prod_tf_root:
+  variables:
+    TF_ROOT: terraform/environments/qa
+  before_script:
+    - cd ${TF_ROOT}
+
+stages:
+  - .pre
+  - test
+  - build
+  - tf-validate
+  - tf-build
+  - tf-deploy
 
 install-deps:
   stage: .pre
+  extends: .jsonnet_image
   variables:
     JB_VERSION: "v0.4.0"
-  before_script:
   script:
     - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
     - jb install
@@ -30,31 +62,138 @@ install-deps:
       - vendor/
     expire_in: 1 month
 
+init-qa:
+  stage: .pre
+  extends:
+    - .qa_grafana
+    - .qa_tf_root
+  script:
+    - gitlab-terraform init
+
+init-prod:
+  stage: .pre
+  extends:
+    - .prod_grafana
+    - .prod_tf_root
+  script:
+    - gitlab-terraform init
+
 lint:
   stage: test
+  extends: .jsonnet_image
+  dependencies:
+    - install-deps
+  needs:
+    - install-deps
   script:
-    - jsonnetfmt --test $(find . -name '*.jsonnet' -o -name '*.libsonnet')
+    - make lint
 
-diff:
-  extends: .prod_grafana
-  stage: test
+build:
+  stage: build
+  extends: .jsonnet_image
+  dependencies:
+    - install-deps
+  needs:
+    - install-deps
   script:
-    - grr diff grr.jsonnet -t 'Dashboard*'
+    - make dashboards_out
+  artifacts:
+    paths:
+      - dashboards_out/
+    expire_in: 1 month
 
-deploy-dashboards-qa:
-  extends: .qa_grafana
-  stage: deploy
+validate-qa:
+  stage: tf-validate
+  extends: .qa_tf_root
   script:
-    - echo "${GRAFANA_URL}"
-    - grr apply grr.jsonnet -t 'Dashboard*'
+    - gitlab-terraform validate
+    - gitlab-terraform fmt
+  dependencies:
+    - build
+  needs:
+    - build
 
-deploy-dashboards:
-  extends: .prod_grafana
-  allow_failure: true
-  stage: deploy
+validate-prod:
+  stage: tf-validate
+  extends: .prod_tf_root
   script:
-    - grr apply grr.jsonnet -t 'Dashboard*'
+    - gitlab-terraform validate
+    - gitlab-terraform fmt
+  dependencies:
+    - build
+  needs:
+    - build
+
+plan-qa:
+  stage: tf-build
+  extends:
+    - .qa_grafana
+    - .qa_tf_root
+  script:
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+  dependencies:
+    - build
+  needs:
+    - build
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+    expire_in: 1 month
+
+plan-prod:
+  stage: tf-build
+  extends:
+    - .prod_grafana
+    - .prod_tf_root
+  script:
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+  dependencies:
+    - build
+  needs:
+    - build
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+    expire_in: 1 month
+
+apply-qa:
+  stage: tf-deploy
+  environment:
+    name: qa
+  extends:
+    - .qa_grafana
+    - .qa_tf_root
+  script:
+    - gitlab-terraform apply
+  dependencies:
+    - build
+    - plan-qa
+  needs:
+    - build
+    - plan-qa
+
+apply-prod:
+  stage: tf-deploy
+  environment:
+    name: production
+  extends:
+    - .prod_grafana
+    - .prod_tf_root
+  script:
+    - gitlab-terraform apply
+  dependencies:
+    - build
+    - plan-prod
+  needs:
+    - build
+    - plan-prod
   only:
-    refs:
-      - main
-      - tags
+    - main
