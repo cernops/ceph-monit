@@ -16,7 +16,6 @@ default:
   variables:
     GRAFANA_URL: $GRAFANA_QA_URL
     GRAFANA_INSECURE_SKIP_VERIFY: "true"
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/qa
   cache:
     - key: prod
       paths:
@@ -24,7 +23,6 @@ default:
 .prod_grafana:
   variables:
     GRAFANA_URL: $GRAFANA_PROD_URL
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/prod
   cache:
     - key: qa
       paths:
@@ -37,7 +35,7 @@ default:
     - cd ${TF_ROOT}
 .prod_tf_root:
   variables:
-    TF_ROOT: terraform/environments/qa
+    TF_ROOT: terraform/environments/prod
   before_script:
     - cd ${TF_ROOT}
 
