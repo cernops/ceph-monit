@@ -124,6 +124,7 @@ validate-prod:
 
 plan-qa:
   stage: tf-build
+  allow_failure: true
   extends:
     - .qa_grafana
     - .qa_tf_root
