@@ -11,7 +11,7 @@ fmt: jsonnetfmt
 lint: JFMT_ARGS += --test
 lint: jsonnetfmt
 
-dashboards_out: dashboards.jsonnet mixins.libsonnet $(wildcard mixins/*)
+dashboards_out: dashboards.jsonnet mixins.libsonnet mixins
 	@mkdir -p dashboards_out
 	jsonnet -J vendor -m dashboards_out dashboards.jsonnet
 
