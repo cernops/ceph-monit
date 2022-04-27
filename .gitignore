@@ -2,3 +2,5 @@ vendor
 dashboards_out
 .terraform
 .terraform.lock.hcl
+alerts.yaml
+rules.yaml

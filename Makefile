@@ -15,4 +15,10 @@ dashboards_out: dashboards.jsonnet mixins.libsonnet mixins
 	@mkdir -p dashboards_out
 	jsonnet -J vendor -m dashboards_out dashboards.jsonnet
 
+alerts.yaml: alerts.jsonnet mixins
+	jsonnet -J vendor -S alerts.jsonnet -o $@
+
+rules.yaml: rules.jsonnet mixins
+	jsonnet -J vendor -S rules.jsonnet -o $@
+
 .PHONY: all jsonnetfmt fmt lint

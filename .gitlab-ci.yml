@@ -43,9 +43,11 @@ stages:
   - .pre
   - test
   - build
+  - validate
   - tf-validate
   - tf-build
   - tf-deploy
+  - rules-deploy
 
 install-deps:
   stage: .pre
@@ -94,11 +96,24 @@ build:
   needs:
     - install-deps
   script:
-    - make dashboards_out
+    - make dashboards_out rules.yaml alerts.yaml
   artifacts:
     paths:
       - dashboards_out/
+      - alerts.yaml
+      - rules.yaml
     expire_in: 1 month
+
+validate-rules:
+  stage: validate
+  extends: .jsonnet_image
+  script:
+    - GO111MODULE=on go get -v github.com/prometheus/prometheus/cmd/promtool@master
+    - promtool check rules alerts.yaml rules.yaml
+  dependencies:
+    - build
+  needs:
+    - build
 
 validate-qa:
   stage: tf-validate
@@ -195,5 +210,19 @@ apply-prod:
   needs:
     - build
     - plan-prod
+  only:
+    - main
+
+deploy-rules:
+  stage: rules-deploy
+  extends: .jsonnet_image
+  dependencies:
+    - build
+  needs:
+    - build
+  script:
+    - yum install -y python3-pip
+    - pip install -r requirements.txt
+    - ./utils/make_mr.py
   only:
     - main
