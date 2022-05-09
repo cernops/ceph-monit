@@ -28,3 +28,17 @@ can add the mixin in `mixins.libsonnet`.
 For internal dashboards/alerts/rules related to Ceph we have our own mixin in
 `mixins/cern-ceph/`, before creating anything here please check for an existing
 open source mixin.
+
+## Deployment
+
+The dashboards are deployed with Terraform (see the `terraform/` folder) to
+[monit-grafana](https://monit-grafana.cern.ch/?orgId=49) as the production
+environment and [monit-grafana-dev](https://monit-grafana-dev.cern.ch/?orgId=49) as
+the qa environment (deployed on every PR, state here represent the latest
+pipeline run on PR/main). Dashboards should not be edited manually on
+Grafana, if you want to test a dashboard please copy an existing dashboard or
+create a new one.
+
+Once they reach the main branch, alerts/rules are automatically pushed to the
+ceph hostgroup in a PR(see `utils/make_mr.py`). Alerts and rules in the
+hostgroup should not be edited manually.
