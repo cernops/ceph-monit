@@ -1,6 +1,5 @@
-# TODO: remove latest
-default:
-  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+include:
+  - template: Terraform/Base.gitlab-ci.yml
 
 .jsonnet_image:
   image: gitlab-registry.cern.ch/linuxsupport/cs9-base
@@ -12,44 +11,31 @@ default:
     - go install github.com/google/go-jsonnet/cmd/jsonnet@${JSONNET_VERSION}
     - go install github.com/google/go-jsonnet/cmd/jsonnetfmt@${JSONNET_VERSION}
 
-.qa_grafana:
+.qa:
   variables:
     GRAFANA_URL: $GRAFANA_QA_URL
     GRAFANA_INSECURE_SKIP_VERIFY: "true"
+    TF_ROOT: terraform/environments/qa
   cache:
     - key: prod
       paths:
         - .terraform
-.prod_grafana:
+
+.prod:
   variables:
     GRAFANA_URL: $GRAFANA_PROD_URL
+    TF_ROOT: terraform/environments/prod
   cache:
     - key: qa
       paths:
         - .terraform
-
-.qa_tf_root:
-  variables:
-    TF_ROOT: terraform/environments/qa
-  before_script:
-    - cd ${TF_ROOT}
-.prod_tf_root:
-  variables:
-    TF_ROOT: terraform/environments/prod
-  before_script:
-    - cd ${TF_ROOT}
-
 stages:
-  - .pre
-  - test
-  - build
+  - init
   - validate
-  - tf-validate
-  - tf-build
-  - tf-deploy
-  - rules-deploy
+  - build
+  - deploy
 
-install-deps:
+build-jsonnet:
   stage: .pre
   extends: .jsonnet_image
   variables:
@@ -57,172 +43,149 @@ install-deps:
   script:
     - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
     - jb install
-  artifacts:
-    paths:
-      - vendor/
-    expire_in: 1 month
-
-init-qa:
-  stage: .pre
-  extends:
-    - .qa_grafana
-    - .qa_tf_root
-  script:
-    - gitlab-terraform init
-
-init-prod:
-  stage: .pre
-  extends:
-    - .prod_grafana
-    - .prod_tf_root
-  script:
-    - gitlab-terraform init
-
-lint:
-  stage: test
-  extends: .jsonnet_image
-  dependencies:
-    - install-deps
-  needs:
-    - install-deps
-  script:
-    - make lint
-
-build:
-  stage: build
-  extends: .jsonnet_image
-  dependencies:
-    - install-deps
-  needs:
-    - install-deps
-  script:
     - make dashboards_out rules.yaml alerts.yaml
   artifacts:
     paths:
+      - vendor/
       - dashboards_out/
       - alerts.yaml
       - rules.yaml
     expire_in: 1 month
 
+init-qa:
+  extends:
+    - .init
+    - .qa
+  dependencies:
+    - build-jsonnet
+  needs:
+    - build-jsonnet
+
+init-prod:
+  extends:
+    - .init
+    - .prod
+  dependencies:
+    - build-jsonnet
+  needs:
+    - build-jsonnet
+
+lint-jsonnet:
+  stage: validate
+  extends: .jsonnet_image
+  dependencies:
+    - build-jsonnet
+  needs:
+    - build-jsonnet
+  script:
+    - make lint
+
+lint-tf:
+  stage: validate
+  script:
+    - gitlab-terraform fmt
+  dependencies: []
+  needs: []
+
 validate-rules:
   stage: validate
   extends: .jsonnet_image
   script:
-    - GO111MODULE=on go get -v github.com/prometheus/prometheus/cmd/promtool@master
+    - dnf install -y epel-release
+    - dnf install -y golang-github-prometheus
     - promtool check rules alerts.yaml rules.yaml
   dependencies:
-    - build
+    - build-jsonnet
   needs:
-    - build
+    - build-jsonnet
 
 validate-qa:
-  stage: tf-validate
-  extends: .qa_tf_root
-  script:
-    - gitlab-terraform validate
-    - gitlab-terraform fmt
+  extends:
+    - .validate
+    - .qa
   dependencies:
-    - build
+    - build-jsonnet
+    - init-qa
   needs:
-    - build
+    - build-jsonnet
+    - init-qa
 
 validate-prod:
-  stage: tf-validate
-  extends: .prod_tf_root
-  script:
-    - gitlab-terraform validate
-    - gitlab-terraform fmt
+  extends:
+    - .validate
+    - .prod
   dependencies:
-    - build
+    - build-jsonnet
+    - init-prod
   needs:
-    - build
+    - build-jsonnet
+    - init-prod
 
 plan-qa:
-  stage: tf-build
   allow_failure: true
   extends:
-    - .qa_grafana
-    - .qa_tf_root
-  script:
-    - gitlab-terraform plan
-    - gitlab-terraform plan-json
+    - .build
+    - .qa
   dependencies:
-    - build
+    - build-jsonnet
+    - init-qa
   needs:
-    - build
-  artifacts:
-    name: plan
-    paths:
-      - ${TF_ROOT}/plan.cache
-    reports:
-      terraform: ${TF_ROOT}/plan.json
-    expire_in: 1 month
+    - build-jsonnet
+    - init-qa
 
 plan-prod:
-  stage: tf-build
   extends:
-    - .prod_grafana
-    - .prod_tf_root
-  script:
-    - gitlab-terraform plan
-    - gitlab-terraform plan-json
+    - .build
+    - .prod
   dependencies:
-    - build
+    - build-jsonnet
+    - init-prod
   needs:
-    - build
-  artifacts:
-    name: plan
-    paths:
-      - ${TF_ROOT}/plan.cache
-    reports:
-      terraform: ${TF_ROOT}/plan.json
-    expire_in: 1 month
+    - build-jsonnet
+    - init-prod
 
 apply-qa:
-  stage: tf-deploy
   allow_failure: true
+  stage: deploy
+  # This doesn't extend the gitlab template as we can't override `only` for some reasons...
+  extends: .qa
   environment:
     name: qa
-  extends:
-    - .qa_grafana
-    - .qa_tf_root
   script:
+    - cd "${TF_ROOT}"
     - gitlab-terraform apply
   dependencies:
-    - build
+    - build-jsonnet
     - plan-qa
   needs:
-    - build
+    - build-jsonnet
     - plan-qa
 
 apply-prod:
-  stage: tf-deploy
   environment:
     name: production
   extends:
-    - .prod_grafana
-    - .prod_tf_root
-  script:
-    - gitlab-terraform apply
+    - .deploy
+    - .prod
   dependencies:
-    - build
+    - build-jsonnet
     - plan-prod
   needs:
-    - build
+    - build-jsonnet
     - plan-prod
-  only:
-    - main
 
 deploy-rules:
-  stage: rules-deploy
-  extends: .jsonnet_image
+  stage: deploy
+  image: gitlab-registry.cern.ch/linuxsupport/cs9-base
   dependencies:
-    - build
+    - build-jsonnet
   needs:
-    - build
-  script:
-    - yum install -y python3-pip
+    - build-jsonnet
+  before_script:
+    - dnf install -y python3-pip
     - pip install -r requirements.txt
+  script:
     - ./utils/make_mr.py
   only:
-    - main
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
