@@ -43,7 +43,7 @@ build-jsonnet:
   script:
     - go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION}
     - jb install
-    - make dashboards_out rules.yaml alerts.yaml
+    - make
   artifacts:
     paths:
       - vendor/

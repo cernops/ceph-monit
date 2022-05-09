@@ -1,6 +1,6 @@
 JSONNET_FILES := $(shell find . -name 'vendor' -prune -o -name '*.jsonnet' -print -o -name '*.libsonnet')
 
-all: lint dashboards_out
+all: lint dashboards_out alerts.yaml rules.yaml
 
 jsonnetfmt:
 	jsonnetfmt $(JFMT_ARGS) $(JSONNET_FILES)
