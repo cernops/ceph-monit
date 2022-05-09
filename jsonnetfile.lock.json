@@ -18,18 +18,8 @@
           "subdir": "grafana-builder"
         }
       },
-      "version": "70b2a1c2c71321ed411395a1977848147a21d5fa",
-      "sum": "0KkygBQd/AFzUvVzezE4qF/uDYgrwUXVpZfINBti0oc="
-    },
-    {
-      "source": {
-        "git": {
-          "remote": "https://github.com/grafana/jsonnet-libs.git",
-          "subdir": "grizzly"
-        }
-      },
-      "version": "70b2a1c2c71321ed411395a1977848147a21d5fa",
-      "sum": "yY8w1JvVAuxB3Z62R3OxDVcSRPUKIvEWQZ2ShyD7uis="
+      "version": "2e980525502eda008cfb88a5672bd70d7d411fda",
+      "sum": "TieGrr7GyKjURk1+wXHFpdoCiwNaIVfZvyc5mbI9OM0="
     },
     {
       "source": {
@@ -38,7 +28,7 @@
           "subdir": "lib/promgrafonnet"
         }
       },
-      "version": "177bc8ec789fa049a9585713d232035b159f8c92",
+      "version": "62ad10fe9ceb53c6b846871997abbfe8e0bd7cf5",
       "sum": "zv7hXGui6BfHzE9wPatHI/AGZa4A2WKo6pq7ZdqBsps="
     },
     {
