@@ -162,17 +162,23 @@ apply-qa:
     - plan-qa
 
 apply-prod:
+  stage: deploy
   environment:
     name: production
-  extends:
-    - .deploy
-    - .prod
+  # This doesn't extend the gitlab template as we can't override `only` for some reasons...
+  extends: .prod
+  script:
+    - cd "${TF_ROOT}"
+    - gitlab-terraform apply
   dependencies:
     - build-jsonnet
     - plan-prod
   needs:
     - build-jsonnet
     - plan-prod
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 deploy-rules:
   stage: deploy
