@@ -10,4 +10,5 @@ terraform {
 resource "grafana_dashboard" "dashboards" {
   for_each    = fileset(path.module, "../../../dashboards_out/*.json")
   config_json = file(each.key)
+  overwrite   = true
 }
