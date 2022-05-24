@@ -14,7 +14,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left rate(ceph_rbd_read_bytes{cluster="$cluster"}[$__rate_interval])
+              on(image) group_left
+                rate(ceph_rbd_read_bytes{cluster=~"$cluster"}[$__rate_interval])
           |||, '{{name}}', unit='binBps'
         )
       )
@@ -23,7 +24,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left rate(ceph_rbd_write_bytes{cluster="$cluster"}[$__rate_interval])
+              on(image) group_left
+                rate(ceph_rbd_write_bytes{cluster=~"$cluster"}[$__rate_interval])
           |||, '{{name}}', unit='binBps'
         )
       )
@@ -35,7 +37,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left rate(ceph_rbd_read_ops{cluster="$cluster"}[$__rate_interval])
+              on(image) group_left
+                rate(ceph_rbd_read_ops{cluster=~"$cluster"}[$__rate_interval])
           |||, '{{name}}', unit='iops'
         )
       )
@@ -44,7 +47,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left rate(ceph_rbd_write_ops{cluster="$cluster"}[$__rate_interval])
+              on(image) group_left
+                rate(ceph_rbd_write_ops{cluster=~"$cluster"}[$__rate_interval])
           |||, '{{name}}', unit='iops'
         )
       )
@@ -56,7 +60,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left ceph_rbd_read_latency{cluster="$cluster"}
+              on(image) group_left
+                ceph_rbd_read_latency{cluster=~"$cluster"}
           |||, '{{name}}', unit='ns'
         )
       )
@@ -65,7 +70,8 @@ local filename = 'rbd_tenant_view.json';
         $.queryPanel(
           |||
             openstack_cinder_volume{tenant_name=~"$tenant"} *
-            on(image) group_left ceph_rbd_write_latency{cluster="$cluster"}
+              on(image) group_left
+                ceph_rbd_write_latency{cluster=~"$cluster"}
           |||, '{{name}}', unit='ns'
         )
       )
