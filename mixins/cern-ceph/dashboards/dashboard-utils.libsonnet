@@ -14,7 +14,7 @@
     super.dashboard(
       title=title,
       datasource=$._config.dataSource,
-    ) + { tags: $._config.tags } + {
+    ) + { tags: $._config.tags, editable: false } + {
       addRowIf(condition, row)::
         if condition
         then self.addRow(row)
@@ -53,7 +53,7 @@
               query: _query,
               refresh: refresh,
               regex: regex,
-              sort: 2,
+              sort: 1,
               tagValuesQuery: '',
               tags: [],
               tagsQuery: '',
