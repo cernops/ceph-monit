@@ -80,6 +80,17 @@ lint-jsonnet:
   script:
     - make lint
 
+lint-dashboards:
+  stage: validate
+  extends: .jsonnet_image
+  dependencies:
+    - build-jsonnet
+  needs:
+    - build-jsonnet
+  script:
+    - go install github.com/grafana/dashboard-linter@819e185
+    - make lint-dashboards
+
 lint-tf:
   stage: validate
   script:

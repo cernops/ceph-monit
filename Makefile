@@ -21,4 +21,10 @@ alerts.yaml: alerts.jsonnet mixins
 rules.yaml: rules.jsonnet mixins
 	jsonnet -J vendor -S rules.jsonnet -o $@
 
-.PHONY: all jsonnetfmt fmt lint
+lint-dashboards: dashboards_out
+	for file in dashboards_out/*.json ; do \
+		dashboard-linter lint $${file} ; \
+    done
+
+
+.PHONY: all jsonnetfmt fmt lint lint-dashboards

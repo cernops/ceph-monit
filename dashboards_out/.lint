@@ -1,0 +1,9 @@
+exclusions:
+  target-job-rule:
+    reason: "Job & instance not needed"
+  target-instance-rule:
+    reason: "Job & instance not needed"
+  template-job-rule:
+    reason: "Job & instance not needed"
+  template-instance-rule:
+    reason: "Job & instance not needed"
