@@ -22,7 +22,10 @@ def check_file_status(project: Project):
             if file.content_sha256 == hashlib.sha256(file_content).hexdigest():
                 print(f"{file_path.name} is up to date on qa")
                 continue
+            else:
+                commit_action = 'update'
         except gitlab.exceptions.GitlabGetError:
+            commit_action = 'create'
             print(f"{file_path.name} does not exist on qa, checking on ceph-monit-bot branch")
         try:
             file = project.files.get(
@@ -45,7 +48,7 @@ def check_file_status(project: Project):
             print(f"{file_path.name} does not exist on ceph-monit-bot branch")
             commit_actions.append(
                 {
-                    "action": "create",
+                    "action": commit_action,
                     "file_path": f"code/files/prometheus/generated_rules/{file_path.name}",
                     "content": file_content.decode(),
                 }
