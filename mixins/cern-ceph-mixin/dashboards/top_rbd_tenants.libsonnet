@@ -8,7 +8,7 @@ local filename = 'top_rbd_tenants.json';
     ($.dashboard('RBD Top Tenants') + { uid: std.md5(filename), tags: [$._config.tag, 'rbd'] })
     .addCustomTemplate('top', ['5'], type='textbox')
     .addQueryTemplate('pool', 'ceph_rbd_read_bytes, pool', isQuery=false)
-    .addQueryTemplate('cluster', 'ceph_osd_metadata, cluster', includeAll=false, isQuery=false)
+    .addQueryTemplate('cluster', 'ceph_osd_metadata, cluster', isQuery=false)
     .addQueryTemplate('topreadbytes', '%(prefix)s (avg_over_time(ceph_rbd_read_bytes{cluster=~"$cluster"}[${__range_s}s] @ end()))))' % prefix, regex=regex, hide=2, refresh=2)
     .addQueryTemplate('topwritebytes', '%(prefix)s (avg_over_time(ceph_rbd_write_bytes{cluster=~"$cluster"}[${__range_s}s] @ end()))))' % prefix, regex=regex, hide=2, refresh=2)
     .addQueryTemplate('topreadiops', '%(prefix)s (avg_over_time(ceph_rbd_read_ops{cluster=~"$cluster"}[${__range_s}s] @ end()))))' % prefix, regex=regex, hide=2, refresh=2)
