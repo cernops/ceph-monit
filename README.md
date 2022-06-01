@@ -26,7 +26,7 @@ update the config as you want (see `mixins/node-mixin` for an example). Then you
 can add the mixin in `mixins.libsonnet`.
 
 For internal dashboards/alerts/rules related to Ceph we have our own mixin in
-`mixins/cern-ceph/`, before creating anything here please check for an existing
+`mixins/cern-ceph-mixin/`, before creating anything here please check for an existing
 open source mixin.
 
 ## Deployment

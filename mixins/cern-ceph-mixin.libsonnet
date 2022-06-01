@@ -1,1 +1,1 @@
-(import 'cern-ceph/mixin.libsonnet') + (import 'default.libsonnet')
+(import 'cern-ceph-mixin/mixin.libsonnet') + (import 'default.libsonnet')
