@@ -4,6 +4,16 @@
     {
       "source": {
         "git": {
+          "remote": "https://github.com/ceph/ceph.git",
+          "subdir": "monitoring/ceph-mixin"
+        }
+      },
+      "version": "5d0dfac60b1c7b2e8e8811e332ea076011bc0ca4",
+      "sum": "ZnyCIu25NBI6Q3Ru7QK1DHf7DBMEURSMQdEJXzCyIgA="
+    },
+    {
+      "source": {
+        "git": {
           "remote": "https://github.com/grafana/grafonnet-lib.git",
           "subdir": "grafonnet"
         }
@@ -18,7 +28,7 @@
           "subdir": "grafana-builder"
         }
       },
-      "version": "b90502c9f3c9ab9350a4f273e72d1bc93c78466b",
+      "version": "80bbb6fd7dc65faab61b9edb04fae41f95737f86",
       "sum": "TieGrr7GyKjURk1+wXHFpdoCiwNaIVfZvyc5mbI9OM0="
     },
     {
