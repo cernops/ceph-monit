@@ -1,5 +1,7 @@
 include:
   - template: Terraform/Base.gitlab-ci.yml
+  - template: Jobs/SAST-IaC.gitlab-ci.yml
+
 image:
   name: gitlab-registry.cern.ch/ceph/terraform/terraform-images:1.1.9
 
@@ -79,6 +81,16 @@ lint-jsonnet:
     - build-jsonnet
   script:
     - make lint
+
+iac-sast:
+  stage: validate
+  dependencies: []
+  needs: []
+
+kics-iac-sast:
+  stage: validate
+  dependencies: []
+  needs: []
 
 lint-dashboards:
   stage: validate
