@@ -2,5 +2,4 @@
   _config+:: {
     showMultiCluster: true,
   },
-  prometheusAlerts:: {},
 } + (import 'default.libsonnet')
