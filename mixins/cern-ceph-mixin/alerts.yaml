@@ -23,6 +23,17 @@ groups:
           procedure_url: http://s3-website.cern.ch/cephdocs/ops/rota.html#cephtargetdown
   - name: ceph.alerts
     rules:
+      - alert: CephNearFullOSD
+        expr: >-
+          (ceph_osd_stat_bytes - ceph_osd_stat_bytes_used)/(ceph_osd_stat_bytes)
+          < 0.15
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: >-
+            {{ $labels.ceph_daemon }} of cluster {{ $labels.cluster }} Free
+            Space is Below 15%
       - alert: CephLowSpace
         expr: >-
           (ceph_cluster_total_bytes-ceph_cluster_total_used_bytes)/ceph_cluster_total_bytes
@@ -32,6 +43,23 @@ groups:
           severity: ticket
         annotations:
           summary: Cluster {{ $labels.cluster }} Free Space is Below 15%
+      - alert: CephHealthError
+        expr: ceph_health_status == 2
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: Cluster {{ $labels.cluster }} is in HEALTH ERROR Status
+      - alert: CephHostOSDsDown
+        expr: >-
+          count((ceph_osd_up == 0) * on(cluster, ceph_daemon)
+          group_left(hostname) ceph_osd_metadata) by (hostname, cluster) ==
+          (count (ceph_osd_metadata) by (hostname, cluster))
+        for: 30m
+        labels:
+          severity: ticket
+        annotations:
+          summary: All OSDs from host {{ $labels.hostname }} seem down
       - alert: CephInconsistentPGs
         expr: ceph_pg_inconsistent > 0
         for: 5m
