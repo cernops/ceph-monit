@@ -90,6 +90,13 @@ groups:
             }} is Below 0.2%
           procedure_url: >-
             http://s3-website.cern.ch/cephdocs/ops/rota.html#cephnearfullpoolquota
+      - alert: CephLaggyPG
+        expr: ceph_pg_laggy > 0
+        for: 1m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Laggy PG on {{ $labels.cluster }}"
   - name: s3_lb.alerts
     rules:
       - alert: S3ErrorRateSLOBurnFast
