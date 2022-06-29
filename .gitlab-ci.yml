@@ -32,7 +32,6 @@ image:
       paths:
         - .terraform
 stages:
-  - init
   - validate
   - build
   - deploy
@@ -53,24 +52,6 @@ build-jsonnet:
       - alerts.yaml
       - rules.yaml
     expire_in: 1 month
-
-init-qa:
-  extends:
-    - .init
-    - .qa
-  dependencies:
-    - build-jsonnet
-  needs:
-    - build-jsonnet
-
-init-prod:
-  extends:
-    - .init
-    - .prod
-  dependencies:
-    - build-jsonnet
-  needs:
-    - build-jsonnet
 
 lint-jsonnet:
   stage: validate
@@ -124,48 +105,40 @@ validate-rules:
 
 validate-qa:
   extends:
-    - .validate
+    - .terraform:validate
     - .qa
   dependencies:
     - build-jsonnet
-    - init-qa
   needs:
     - build-jsonnet
-    - init-qa
 
 validate-prod:
   extends:
-    - .validate
+    - .terraform:validate
     - .prod
   dependencies:
     - build-jsonnet
-    - init-prod
   needs:
     - build-jsonnet
-    - init-prod
 
 plan-qa:
   allow_failure: true
   extends:
-    - .build
+    - .terraform:build
     - .qa
   dependencies:
     - build-jsonnet
-    - init-qa
   needs:
     - build-jsonnet
-    - init-qa
 
 plan-prod:
   extends:
-    - .build
+    - .terraform:build
     - .prod
   dependencies:
     - build-jsonnet
-    - init-prod
   needs:
     - build-jsonnet
-    - init-prod
 
 apply-qa:
   allow_failure: true
