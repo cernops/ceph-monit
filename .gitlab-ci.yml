@@ -3,7 +3,7 @@ include:
   - template: Jobs/SAST-IaC.gitlab-ci.yml
 
 image:
-  name: gitlab-registry.cern.ch/ceph/terraform/terraform-images:1.1.9
+  name: gitlab-registry.cern.ch/ceph/terraform/terraform-images:1.1.9-6
 
 .jsonnet_image:
   variables:
