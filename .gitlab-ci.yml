@@ -18,6 +18,7 @@ image:
   variables:
     GRAFANA_URL: $GRAFANA_QA_URL
     TF_ROOT: terraform/environments/qa
+    TF_STATE_NAME: qa
   cache:
     - key: prod
       paths:
@@ -27,6 +28,7 @@ image:
   variables:
     GRAFANA_URL: $GRAFANA_PROD_URL
     TF_ROOT: terraform/environments/prod
+    TF_STATE_NAME: prod
   cache:
     - key: qa
       paths:
