@@ -38,7 +38,7 @@
       addRows(rows)::
         self.addRowsIf(true, rows),
 
-      addQueryTemplate(name, query, regex='', hide=0, refresh=1, includeAll=true, isQuery=true)::
+      addQueryTemplate(name, query, regex='', hide=0, refresh=1, includeAll=true, isQuery=true, allValue=null)::
         local _query = if isQuery then 'query_result(%s)' % query else 'label_values(%s)' % query;
         self {
           templating+: {
@@ -50,6 +50,7 @@
               multi: true,
               name: name,
               options: [],
+              allValue: allValue,
               query: _query,
               refresh: refresh,
               regex: regex,
