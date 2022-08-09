@@ -38,6 +38,7 @@ resource "grafana_data_source" "loki" {
   type                = "loki"
   name                = "Loki Ceph"
   url                 = "https://sdloki.cern.ch"
+  basic_auth_enabled  = true
   basic_auth_username = "ceph"
   basic_auth_password = var.loki_auth_password
 }
