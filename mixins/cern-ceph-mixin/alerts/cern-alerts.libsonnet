@@ -29,17 +29,6 @@
       name: 'ceph.alerts',
       rules: [
         {
-          alert: 'CephNearFullOSD',
-          'for': '10m',
-          expr: |||
-            (ceph_osd_stat_bytes - ceph_osd_stat_bytes_used) / (ceph_osd_stat_bytes) < 0.15
-          |||,
-          labels: { severity: 'ticket' },
-          annotations: {
-            summary: '{{ $labels.ceph_daemon }} of cluster {{ $labels.cluster }} Free Space is Below 15%',
-          },
-        },
-        {
           alert: 'CephLowSpace',
           'for': '15m',
           expr: |||
@@ -48,29 +37,6 @@
           labels: { severity: 'ticket' },
           annotations: {
             summary: 'Cluster {{ $labels.cluster }} Free Space is Below 15%',
-          },
-        },
-        {
-          alert: 'CephHealthError',
-          'for': '5m',
-          expr: 'ceph_health_status == 2',
-          labels: { severity: 'ticket' },
-          annotations: {
-            summary: 'Cluster {{ $labels.cluster }} is in HEALTH ERROR Status',
-          },
-        },
-        {
-          alert: 'CephHostOSDsDown',
-          'for': '30m',
-          expr: |||
-            count(
-              (ceph_osd_up == 0) *
-                on(cluster, ceph_daemon) group_left(hostname) ceph_osd_metadata) by (hostname, cluster) ==
-                  (count (ceph_osd_metadata) by (hostname, cluster))
-          |||,
-          labels: { severity: 'ticket' },
-          annotations: {
-            summary: 'All OSDs from host {{ $labels.hostname }} seem down',
           },
         },
         {
