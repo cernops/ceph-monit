@@ -49,11 +49,11 @@
     {
       "source": {
         "git": {
-          "remote": "https://github.com/ceph/ceph.git",
+          "remote": "https://github.com/bosc0/ceph.git",
           "subdir": "monitoring/ceph-mixin"
         }
       },
-      "version": "main"
+      "version": "fix_multicluster"
     }
 
   ],
