@@ -4,11 +4,11 @@
     {
       "source": {
         "git": {
-          "remote": "https://github.com/ceph/ceph.git",
+          "remote": "https://github.com/bosc0/ceph.git",
           "subdir": "monitoring/ceph-mixin"
         }
       },
-      "version": "50f4580686dc3523a004123fe692193130b046f1",
+      "version": "1c751c1cf50436ef398ce59060fee4dccaf18d36",
       "sum": "ZnyCIu25NBI6Q3Ru7QK1DHf7DBMEURSMQdEJXzCyIgA="
     },
     {

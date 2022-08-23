@@ -53,7 +53,7 @@
           "subdir": "monitoring/ceph-mixin"
         }
       },
-      "version": "fix_multicluster"
+      "version": "main"
     }
 
   ],
