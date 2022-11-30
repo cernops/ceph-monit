@@ -107,50 +107,50 @@
         {
           record: 's3:slo_errors_per_request:ratio_rate5m',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[5m])) /
-              sum(rate(traefik_entrypoint_requests_total[5m]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[5m])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[5m]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate30m',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[30m])) /
-              sum(rate(traefik_entrypoint_requests_total[30m]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[30m])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[30m]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate1h',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[1h])) /
-              sum(rate(traefik_entrypoint_requests_total[1h]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[1h])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[1h]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate2h',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[2h])) /
-              sum(rate(traefik_entrypoint_requests_total[2h]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[2h])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[2h]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate6h',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[6h])) /
-              sum(rate(traefik_entrypoint_requests_total[6h]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[6h])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[6h]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate24h',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[24h])) /
-              sum(rate(traefik_entrypoint_requests_total[24h]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[24h])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[24h]))
           |||,
         },
         {
           record: 's3:slo_errors_per_request:ratio_rate3d',
           expr: |||
-            sum(rate(traefik_entrypoint_requests_total{code=~"5.*"}[3d])) /
-              sum(rate(traefik_entrypoint_requests_total[3d]))
+            sum by (cluster)(rate(traefik_entrypoint_requests_total{code=~"5.*"}[3d])) /
+              sum by (cluster)(rate(traefik_entrypoint_requests_total[3d]))
           |||,
         },
       ],
